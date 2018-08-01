@@ -1,0 +1,89 @@
+
+fun main() {
+    var bf = BrainFck();
+    if argc() < 1 {
+        println("You don't specified any arguments, interpreting 'Hello World!` program'");
+        bf.interpret(" ++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>.");
+    } else {
+        bf.interpret(argv(0));
+    }
+}
+
+fun get_char() -> char {
+    let fct = loadFunction("getchar");
+    let ch = try! call0(fct).toInt().toChar();
+    return ch;
+}
+
+class BrainFck {
+    var ptr: int;
+    var length: int;
+    var memory: Array<int>;
+
+    init() {
+        self.length = 65535;
+        self.memory = Array::<int>(self.length);
+    }
+
+    fun interpret(s: Str) {
+        var c: int = 0;
+        var len = s.len();
+        var i = 0;
+        while (i < len) {
+            if getChar(s,i) == '>' {
+                if (self.ptr == self.length) {
+                    self.ptr = 0;
+                } else {
+                    self.ptr = self.ptr + 1;
+                }
+            } else if getChar(s,i) == '<' {
+                if self.ptr == 0 {
+                    self.ptr = self.length - 1;
+                } else {
+                    self.ptr = self.ptr - 1;
+                }
+            } else if getChar(s,i) == '+' {
+                self.memory[self.ptr] = self.memory[self.ptr] + 1;
+            } else if getChar(s,i) == '-' {
+                self.memory[self.ptr] = self.memory[self.ptr] - 1;
+            } else if getChar(s,i) == '.' {
+                var chr = try! self.memory[self.ptr].toChar();
+                print(chr.toString());
+            } else if getChar(s,i) == ',' {
+                let c = get_char();
+                self.memory[self.ptr] = c.toInt();
+            } else if getChar(s,i) == '[' {
+                if self.memory[self.ptr] == 0 {
+                    i = i + 1;
+
+                    while c > 0 || getChar(s,i) != ']' {
+                        if getChar(s,i) == '[' {
+                            c = c + 1;
+                        } else if getChar(s,i) == ']' {
+                            c = c -1;
+                        }
+                        i = i + 1;
+                    }
+                }
+            } else if getChar(s,i) == ']' {
+                if self.memory[self.ptr] != 0 {
+                    i = i - 1;
+                    while (c > 0 || getChar(s,i) != '[') {
+                        if getChar(s,i) == ']' {
+                            c = c + 1;
+                        } else if getChar(s,i) == '[' {
+                            c = c - 1;
+                        }
+                        i = i - 1;
+                    }
+                    i = i - 1;
+                }
+            }
+            i = i + 1;
+        }
+    }
+}
+
+fun getChar(s: Str,idx: int) -> char {
+    return try! s.getByte(idx).toInt().toChar();
+}
