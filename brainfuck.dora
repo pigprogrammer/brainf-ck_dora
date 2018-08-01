@@ -4,6 +4,9 @@ fun main() {
     if argc() < 1 {
         println("You don't specified any arguments, interpreting 'Hello World!` program'");
         bf.interpret(" ++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>.");
+    } else if argv(0) == "file" {        
+        let fd = try! File(argv(1)).fopen("r");
+        bf.interpret(fd.readToStr());
     } else {
         bf.interpret(argv(0));
     }
